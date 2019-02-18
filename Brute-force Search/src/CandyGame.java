@@ -1,91 +1,98 @@
 import java.util.*;
 import java.io.*;
+import java.lang.reflect.Array;
 
 public class CandyGame {
-	
+
+	static int[] dirX = { -1, 1, 0, 0 };
+	static int[] dirY = { 0, 0, -1, 1 };
+
+	private static char[][] arr;
+	private static int size = 0;
+	private static int max = 0;
+
 	public static void main(String[] args) throws NumberFormatException, IOException {
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-		int size = Integer.parseInt(br.readLine().toString());
-		if (size < 3 || size > 50) {
-			System.out.println(0);
-		}
-		
-		String[][] arr = new String[size][size];
+		size = Integer.parseInt(br.readLine());
+
+		arr = new char[size][size];
+
 		for (int i = 0; i < size; i++) {
-			String[] line = br.readLine().split("");
-			for (int j = 0; j < line.length; j++) {
-				String str = line[j];
-				arr[i][j] = str;
+			String line = br.readLine();
+			for (int j = 0; j < line.length(); j++) {
+				char letter = line.charAt(j);
+				arr[i][j] = letter;
 			}
 		}
-		
-		int max = 0;
-		String[][] target;
-		/*
-		for (int i = 0; i < size; i++) {
-			for (int j = 0; j < size; j++) {
-				String ori = arr[i][j];
-				
-				int l, r, u, d;
-				l = i - 1;
-				r = i + 1;
-				u = j - 1;
-				d = j + 1;
-				
-				int pos = 0;
-				if (l > -1) {
-					target = arr.clone();
-					String temp = arr[l][j];
-					target[i][j] = temp;
-					target[l][j] = ori;
-					// target 가져가서 연결된 사탕 확인
-				}
-			}
-		}
-		*/
-		
-		for (int i = 0; i < size; i++) {
-			for (int j = 0; j < size; j++) {
-				String val = arr[i][j];
-				int count = 0;
-				int right = j;
-				//System.out.println("Compare " + arr[i][j] + " in " + i + ", " + j);
-				boolean diff = false;
-				while (!diff && right < size) {
-					if (val.equals(arr[i][right])) {
-						count++;
-						right++;
-					} else {
-						diff = true;
-						break;
+
+		for (int x = 0; x < size; x++) {
+			for (int y = 0; y < size; y++) {
+				for (int dir = 0; dir < 4; dir++) {
+					int targetX = x + dirX[dir];
+					int targetY = y + dirY[dir];
+
+					if (targetX >= 0 && targetX < size && targetY >= 0 && targetY < size) {
+						swap(x, y, targetX, targetY); // Swap
+						getMax(size, arr);
+						swap(x, y, targetX, targetY); // Roll-back
 					}
 				}
-				if (count > max) {
-					System.out.println("Updated! at " + i + ", "+ j );
-					max = count;
+			}
+		}
+
+		System.out.println(max);
+	}
+
+	private static void swap(int oriX, int oriY, int tgtX, int tgtY) {
+		char temp = arr[oriX][oriY];
+		arr[oriX][oriY] = arr[tgtX][tgtY];
+		arr[tgtX][tgtY] = temp;
+	}
+
+	private static void getMax(int size, char[][] arr) {
+		int count = 1;
+		int temp = 1;
+
+		for (int x = 0; x < size; x++) {
+			for (int y = 0; y < size - 1; y++) {
+				char val = arr[x][y];
+				if (val == arr[x][y + 1]) {
+					count++;
+				} else {
+					temp = Math.max(count, temp);
+					count = 1;
+				}
+
+				/*
+				 * int countX = 0; int nextY = y; boolean foundX = false; while (!foundX &&
+				 * nextY < size) { if (val == (arr[x][nextY])) { countX++; nextY++; } else {
+				 * foundX = true; break; } }
+				 */
+			}
+			temp = Math.max(count, temp);
+			count = 1;
+
+			for (int y = 0; y < size - 1; y++) {
+				char val = arr[y][x];
+				if (val == arr[y + 1][x]) {
+					count++;
+				} else {
+					temp = Math.max(count, temp);
+					count = 1;
 				}
 			}
+			temp = Math.max(count, temp);
+			count = 1;
 		}
 		
-		System.out.println(max);
-		
-		/* 자리 바꾸기 경우의 수
-		 * 3 x 3 -> 12 (6 + 6)
-		 * 4 x 4 -> 24 (12 + 12)
-		 * 5 x 5 -> 40 (20 + 20)
-		 * 6 x 6 -> 60 (30 + 30)
-		 * 3 x 4, 4 x 6, 5 x 8, 6 x 10
-		 * n * (n -1) * 2
-		 * *
-		 */
-		
-		
-		for (int i = 0; i < size; i++) {
-			for (int j = 0; j < size; j++) {
-				System.out.print(arr[i][j]);
-			}
-			System.out.println();
+		if (temp > max) {
+			max = temp;
 		}
 	}
-	
+
+	/*
+	 * private static char[][] deepCopy() { char[][] result = new char[size][size];
+	 * for (int i = 0; i < size; i++) { result[i] = Arrays.copyOf(arr[i],
+	 * arr[i].length); } return result; }
+	 */
 }
