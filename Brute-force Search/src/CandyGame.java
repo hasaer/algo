@@ -1,6 +1,6 @@
-import java.util.*;
-import java.io.*;
-import java.lang.reflect.Array;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 
 public class CandyGame {
 
